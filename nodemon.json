@@ -1,0 +1,5 @@
+{
+  "ignore": ["output.docx", "counter.json", "/node_modules/**/*"],
+  "ext": "js,json",
+  "delay": 1000
+}
