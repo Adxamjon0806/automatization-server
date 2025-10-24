@@ -1,49 +1,3 @@
-// import dotenv from "dotenv";
-// import bot from "./botInstance.js";
-
-// dotenv.config();
-
-// const firstChatId = process.env.FIRST_CHAT_ID;
-// const secondChatId = process.env.SECOND_CHAT_ID;
-
-// export async function sendDocumentToFirst(filePath, data, count) {
-//   try {
-//     await bot.sendDocument(firstChatId, filePath, {
-//       caption: `U-25/${count} ${data.companyName}\n`,
-//     });
-//   } catch (e) {
-//     console.error("Error at sending document to telegram group", e);
-//   }
-// }
-
-// export async function sendTextToGroup(data, count) {
-//   try {
-//     let tarrifCaptions = "";
-//     let caption;
-
-//     if (data.tarrifs.length) {
-//       for (let i = 0; i < data.tarrifs.length; i++) {
-//         const { name, price, count } = data.tarrifs[i];
-//         tarrifCaptions += `${name} по ${price} сум - ${count} шт\n`;
-//       }
-//     }
-
-//     if (data.abonentTarrifs.length) {
-//       for (let i = 0; i < data.abonentTarrifs.length; i++) {
-//         const { name, price, count, term } = data.abonentTarrifs[i];
-//         tarrifCaptions += `Тариф ${name} по ${price} сум - ${term} месяц - ${count} шт\n`;
-//       }
-//     }
-
-//     caption = `U-25/${count} ${data.companyName}\n` + tarrifCaptions;
-
-//     await bot.sendMessage(secondChatId, caption);
-//   } catch (e) {
-//     console.error("Error at sending text to telegram group", e);
-//   }
-// }
-
-// botSendingFunc.js
 import dotenv from "dotenv";
 import fs from "fs";
 import bot from "./botInstance.js";
@@ -53,7 +7,7 @@ dotenv.config();
 const firstChatId = process.env.FIRST_CHAT_ID;
 const secondChatId = process.env.SECOND_CHAT_ID;
 
-export async function sendDocumentToFirst(filePath, data, count) {
+export async function sendDocumentToFirst(filePath, data) {
   console.log("📤 [sendDocumentToFirst] запуск функции, путь:", filePath);
   try {
     // Проверим наличие файла
@@ -64,8 +18,14 @@ export async function sendDocumentToFirst(filePath, data, count) {
 
     const fileStream = fs.createReadStream(filePath);
 
+    let textToSenders = data.sendingMethod
+      ? `Прошу выслать по ${data.sendingMethod == "didox" ? "Дидоксу" : ""}${
+          data.sendingMethod != "didox" ? data.sendingMethod : ""
+        }\n`
+      : "";
+
     const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption: `U-25/${count} ${data.companyName}`,
+      caption: textToSenders + `ИНН: ${data.inn}`,
     });
 
     console.log("✅ Document successfully sent:", sentMessage.message_id);
@@ -88,7 +48,7 @@ export async function sendTextToGroup(data, count) {
     if (data.abonentTarrifs?.length) {
       for (let i = 0; i < data.abonentTarrifs.length; i++) {
         const { name, price, count: c, term } = data.abonentTarrifs[i];
-        tarrifCaptions += `Тариф ${name} по ${price} сум - ${term} месяц - ${c} шт\n`;
+        tarrifCaptions += `Тариф ${name} по ${price} сум на ${term} месяца - ${c} шт\n`;
       }
     }
 

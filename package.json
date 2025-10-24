@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@ilovepdf/ilovepdf-nodejs": "^0.3.1",
     "cors": "^2.8.5",
     "docxtemplater": "^3.66.3",
     "dotenv": "^17.2.3",

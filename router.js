@@ -6,8 +6,11 @@ import { __dirname } from "./index.js";
 import { abonentTarrifDatas, tarrifDatas } from "./emptyTables.js";
 import { getCounterValue, setCounterValue } from "./counterLogic.js";
 import { sendDocumentToFirst, sendTextToGroup } from "./botSendingFunc.js";
+import { WordToPDF } from "./DocxToPDF.js";
 
 const router = new Router();
+
+const emptyUnderlines = "______________";
 
 let isLocked = false;
 const waitForUnlock = async () => {
@@ -17,23 +20,22 @@ const waitForUnlock = async () => {
 };
 
 router.post("/new-agreement", async (req, res) => {
-  console.log("🟡 1 — маршрут /new-agreement вызван");
   try {
     await waitForUnlock(); // ждём, пока другой запрос закончит запись
     isLocked = true;
-    console.log("🟢 2 — после waitForUnlock");
 
     const count = getCounterValue();
-    console.log("🟢 3 — count =", count);
     let tarrifsTotal = 0;
     let abonentTarrifsTotal = 0;
     const datas = req.body;
-    console.log("🟢 4 — получены данные:", datas.companyName);
     const day = new Date(datas.date).getDate();
     const month = new Date(datas.date).getMonth() + 1;
+    const filesName =
+      datas.companyName.split(" ").join("_") +
+      `_Договор_№_U_25_${count}_от_2025_юр` +
+      ".docx";
 
     const template = fs.readFileSync("ДоговорДляСервера.docx", "binary");
-    console.log("🟢 5 — шаблон прочитан");
     const zip = new PizZip(template);
 
     const doc = new Docxtemplater(zip, {
@@ -66,12 +68,12 @@ router.post("/new-agreement", async (req, res) => {
         ? datas.directorName
         : "__________________________________________________",
       directorNameBottom: datas.directorName ? datas.directorName : "",
-      address: datas.address ? `Адрес: ${datas.address}` : "",
-      phone: datas.phone ? `Телефон: ${datas.phone}` : "",
-      account: datas.account ? `Р/с: ${datas.account}` : "",
-      bank: datas.bank ? `Банк: ${datas.bank}` : "",
-      nfo: datas.nfo ? `МФО: ${datas.nfo},` : "",
-      okef: datas.okef ? `ОКЭД: ${datas.okef}` : "",
+      address: `Адрес:${datas.address ? datas.address : emptyUnderlines}`,
+      phone: `Телефон: ${datas.phone ? datas.phone : emptyUnderlines}`,
+      account: `Р/с: ${datas.account ? datas.account : emptyUnderlines}`,
+      bank: `Банк: ${datas.bank ? datas.bank : emptyUnderlines}`,
+      nfo: `МФО: ${datas.nfo ? datas.nfo : emptyUnderlines},`,
+      okef: `ОКЭД: ${datas.okef ? datas.okef : emptyUnderlines}`,
       day: day < 10 ? "0" + day : day,
       month: month < 10 ? "0" + month : month,
       tarrifs: datas.tarrifs.length > 0 ? datas.tarrifs : tarrifDatas,
@@ -87,26 +89,31 @@ router.post("/new-agreement", async (req, res) => {
 
     const buffer = doc.getZip().generate({ type: "nodebuffer" });
 
-    const filePath = "./output.docx";
+    const filePath = `./${filesName}`;
     fs.writeFileSync(filePath, buffer);
-    console.log("🟢 6 — файл записан:", filePath);
 
-    await sendDocumentToFirst(filePath, datas, count);
-    console.log("🟢 7 — отправка документа выполнена");
+    const pdfPath = await WordToPDF(filePath, filesName);
+
+    await sendDocumentToFirst(pdfPath, datas, count);
     await sendTextToGroup(datas, count);
-    console.log("🟢 8 — отправка текста выполнена");
 
-    // Заголовки для скачивания файла
-    res.setHeader("Content-Disposition", "attachment; filename=output.docx");
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    );
+    // Вариант для старых браузеров — безопасное экранирование кавычек
+    const safeFileName = filesName.replace(/[\/\\?%*:|"<>']/g, "_").trim();
+    console.log(safeFileName);
 
-    res.send(buffer);
-    console.log("🟢 9 — ответ отправлен");
+    const docxBuffer = fs.readFileSync(filePath);
+    const pdfBuffer = fs.readFileSync(pdfPath);
+
+    res.status(200).json({
+      docx: docxBuffer.toString("base64"),
+      pdf: pdfBuffer.toString("base64"),
+      filesName,
+    });
 
     setCounterValue(count + 1);
+
+    fs.unlinkSync(filePath);
+    fs.unlinkSync(pdfPath);
   } catch (e) {
     console.error("Error at creating new agreement route", e);
     // Отправляем ошибку клиенту, если ответ еще не был отправлен
@@ -118,7 +125,6 @@ router.post("/new-agreement", async (req, res) => {
     }
   } finally {
     isLocked = false; // снимаем блокировку
-    console.log("🟣 10 — разблокировано");
   }
 });
 
