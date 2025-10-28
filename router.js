@@ -28,11 +28,12 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
     let tarrifsTotal = 0;
     let abonentTarrifsTotal = 0;
     const datas = req.body;
+    const companyInitialLetter = datas.dealingCompany === "UZGPS" ? "U" : "GPS";
     const day = new Date(datas.date).getDate();
     const month = new Date(datas.date).getMonth() + 1;
     const filesName =
       datas.companyName.split(" ").join("_") +
-      `_Договор_№_U_25_${count}_от_2025_юр` +
+      `_Договор_№_${companyInitialLetter}_25_${count}_от_2025_юр` +
       ".docx";
 
     const template = fs.readFileSync("ДоговорДляСервера.docx", "binary");
@@ -83,6 +84,33 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
           : abonentTarrifDatas,
       tarrifsTotal,
       abonentTarrifsTotal,
+      dealingCompanyName:
+        datas.dealingCompany === "UZGPS"
+          ? "ООО «UZGPS»"
+          : "ООО «Центр программистов BePro»",
+      companyInitialLetter,
+      topCompanyCEO:
+        datas.dealingCompany === "UZGPS"
+          ? "Директора"
+          : "Руководителя Департамента развития услуг UZGPS",
+      bottomCompanyCEO:
+        datas.dealingCompany === "UZGPS"
+          ? "Директор"
+          : "Руководитель Департамента развития услуг UZGPS",
+      dealingAccount:
+        datas.dealingCompany === "UZGPS"
+          ? "2020 8000 2051 3352 7001"
+          : "2020 8000 3043 2850 9001",
+      dealingBank:
+        datas.dealingCompany === "UZGPS"
+          ? "«Ипотекабанк» АТИБ Яккасарой филиали"
+          : "ОПЕРУ АК «Алокабанк», г.Ташкент",
+      dealingMFO: datas.dealingCompany === "UZGPS" ? "01017" : "00401",
+      dealingOKED: datas.dealingCompany === "UZGPS" ? "61300" : "62010",
+      dealingInn:
+        datas.dealingCompany === "UZGPS" ? "306 792 862" : "204 973 561",
+      NDSCode:
+        datas.dealingCompany === "UZGPS" ? "Рег. Код НДС: 3260 6002 2843 " : "",
     };
 
     doc.render(data);
@@ -95,7 +123,7 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
     const pdfPath = await WordToPDF(filePath, filesName);
 
     await sendDocumentToFirst(pdfPath, datas, count);
-    await sendTextToGroup(datas, count);
+    await sendTextToGroup(datas, count, companyInitialLetter);
 
     // Вариант для старых браузеров — безопасное экранирование кавычек
     const safeFileName = filesName.replace(/[\/\\?%*:|"<>']/g, "_").trim();
@@ -207,7 +235,7 @@ router.post("/new-individual-agreement", async (req, res) => {
     const pdfPath = await WordToPDF(filePath, filesName);
 
     await sendDocumentToFirst(pdfPath, datas, count);
-    // await sendTextToGroup(datas, count);
+    await sendTextToGroup(datas, count);
 
     // Вариант для старых браузеров — безопасное экранирование кавычек
     const safeFileName = filesName.replace(/[\/\\?%*:|"<>']/g, "_").trim();
@@ -237,6 +265,30 @@ router.post("/new-individual-agreement", async (req, res) => {
     }
   } finally {
     isLocked = false; // снимаем блокировку
+  }
+});
+
+router.get("/get-count", async (req, res) => {
+  try {
+    const count = getCounterValue();
+    res.status(200).json({ count });
+  } catch (e) {
+    res.status(500).json({
+      error: "Ошибка при получении счёта",
+    });
+  }
+});
+
+router.post("/change-count", async (req, res) => {
+  try {
+    const datas = req.body;
+    setCounterValue(Number(datas.count));
+    const newCount = getCounterValue();
+    res.status(200).json({ newCount });
+  } catch (e) {
+    res
+      .status(500)
+      .json({ error: "Ошибка при изменении счёта", message: e.message });
   }
 });
 

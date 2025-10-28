@@ -34,7 +34,7 @@ export async function sendDocumentToFirst(filePath, data) {
   }
 }
 
-export async function sendTextToGroup(data, count) {
+export async function sendTextToGroup(data, count, companyInitialLetter) {
   try {
     let tarrifCaptions = "";
 
@@ -52,7 +52,10 @@ export async function sendTextToGroup(data, count) {
       }
     }
 
-    const caption = `U-25/${count} ${data.companyName}\n` + tarrifCaptions;
+    const caption =
+      `${companyInitialLetter}-25/${count} ${
+        data.companyName ? data.companyName : data.personName
+      }\n` + tarrifCaptions;
 
     await bot.sendMessage(secondChatId, caption);
     console.log("✅ Text message sent to group.");
