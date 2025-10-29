@@ -17,6 +17,7 @@
     "docxtemplater": "^3.66.3",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "mongoose": "^8.19.2",
     "node-telegram-bot-api": "^0.66.0",
     "pizzip": "^3.2.0"
   },

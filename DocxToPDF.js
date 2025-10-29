@@ -1,9 +1,9 @@
 import ILovePDFApi from "@ilovepdf/ilovepdf-nodejs";
 import ILovePDFFile from "@ilovepdf/ilovepdf-nodejs/ILovePDFFile.js";
 import fs from "fs";
-import dotnev from "dotenv";
+import dotenv from "dotenv";
 
-dotnev.config();
+dotenv.config();
 
 const instance = new ILovePDFApi(
   process.env.PUBLIC_KEY,

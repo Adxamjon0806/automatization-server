@@ -7,6 +7,7 @@ import { abonentTarrifDatas, tarrifDatas } from "./emptyTables.js";
 import { getCounterValue, setCounterValue } from "./counterLogic.js";
 import { sendDocumentToFirst, sendTextToGroup } from "./botSendingFunc.js";
 import { WordToPDF } from "./DocxToPDF.js";
+import IdService from "./IdService.js";
 
 const router = new Router();
 
@@ -24,7 +25,9 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
     await waitForUnlock(); // ждём, пока другой запрос закончит запись
     isLocked = true;
 
-    const count = getCounterValue();
+    const countBody = await IdService.getCount();
+    const count = countBody.count;
+    console.log(count);
     let tarrifsTotal = 0;
     let abonentTarrifsTotal = 0;
     const datas = req.body;
@@ -138,7 +141,7 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
       filesName,
     });
 
-    setCounterValue(count + 1);
+    await IdService.updateCount(count + 1, countBody);
 
     fs.unlinkSync(filePath);
     fs.unlinkSync(pdfPath);
@@ -161,10 +164,13 @@ router.post("/new-individual-agreement", async (req, res) => {
     await waitForUnlock(); // ждём, пока другой запрос закончит запись
     isLocked = true;
 
-    const count = getCounterValue();
+    const countBody = await IdService.getCount();
+    const count = countBody.count;
+    console.log(count);
     let tarrifsTotal = 0;
     let abonentTarrifsTotal = 0;
     const datas = req.body;
+    const companyInitialLetter = datas.dealingCompany === "UZGPS" ? "U" : "GPS";
     const day = new Date(datas.date).getDate();
     const month = new Date(datas.date).getMonth() + 1;
     const givenDay = datas.givenAt ? new Date(datas.givenAt).getDate() : "___";
@@ -235,7 +241,7 @@ router.post("/new-individual-agreement", async (req, res) => {
     const pdfPath = await WordToPDF(filePath, filesName);
 
     await sendDocumentToFirst(pdfPath, datas, count);
-    await sendTextToGroup(datas, count);
+    await sendTextToGroup(datas, count, companyInitialLetter);
 
     // Вариант для старых браузеров — безопасное экранирование кавычек
     const safeFileName = filesName.replace(/[\/\\?%*:|"<>']/g, "_").trim();
@@ -250,7 +256,7 @@ router.post("/new-individual-agreement", async (req, res) => {
       filesName,
     });
 
-    setCounterValue(count + 1);
+    await IdService.updateCount(count + 1, countBody);
 
     fs.unlinkSync(filePath);
     fs.unlinkSync(pdfPath);
@@ -270,7 +276,7 @@ router.post("/new-individual-agreement", async (req, res) => {
 
 router.get("/get-count", async (req, res) => {
   try {
-    const count = getCounterValue();
+    const count = await IdService.getCount();
     res.status(200).json({ count });
   } catch (e) {
     res.status(500).json({
@@ -282,8 +288,10 @@ router.get("/get-count", async (req, res) => {
 router.post("/change-count", async (req, res) => {
   try {
     const datas = req.body;
-    setCounterValue(Number(datas.count));
-    const newCount = getCounterValue();
+    console.log(datas);
+    // setCounterValue(Number(datas.count));
+    await IdService.updateCount(datas.count, datas.countBody);
+    const newCount = await IdService.getCount();
     res.status(200).json({ newCount });
   } catch (e) {
     res
