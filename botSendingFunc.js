@@ -24,11 +24,12 @@ export async function sendDocumentToFirst(filePath, data) {
         }\n`
       : "";
 
+    const caption = data.companyName
+      ? `ИНН: ${data.inn}`
+      : `ПИНФЛ: ${data.pinfl}`;
+
     const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption:
-        textToSenders + data.companyName
-          ? `ИНН: ${data.inn}`
-          : `ПИНФЛ: ${data.pinfl}`,
+      caption: textToSenders + caption,
     });
 
     console.log("✅ Document successfully sent:", sentMessage.message_id);
