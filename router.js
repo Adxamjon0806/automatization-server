@@ -4,7 +4,6 @@ import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import { __dirname } from "./index.js";
 import { abonentTarrifDatas, tarrifDatas } from "./emptyTables.js";
-import { getCounterValue, setCounterValue } from "./counterLogic.js";
 import { sendDocumentToFirst, sendTextToGroup } from "./botSendingFunc.js";
 import { WordToPDF } from "./DocxToPDF.js";
 import IdService from "./IdService.js";
@@ -222,6 +221,7 @@ router.post("/new-individual-agreement", async (req, res) => {
       givenFrom: datas.givenFrom ? datas.givenFrom : "________________",
       phone: datas.phone ? datas.phone : "_____________________",
       pinfl: datas.pinfl ? datas.pinfl : "_____________________",
+      inn: datas.inn ? datas.inn : "_____________________",
       tarrifs: datas.tarrifs.length > 0 ? datas.tarrifs : tarrifDatas,
       abonentTarrifs:
         datas.abonentTarrifs.length > 0
