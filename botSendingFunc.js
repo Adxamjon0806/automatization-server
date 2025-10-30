@@ -18,6 +18,10 @@ export async function sendDocumentToFirst(filePath, data) {
 
     const fileStream = fs.createReadStream(filePath);
 
+    const namingOfClient = `${
+      data.companyName ? data.companyName : data.personName
+    }\n`;
+
     let textToSenders = data.sendingMethod
       ? `Прошу выслать по ${data.sendingMethod == "didox" ? "Дидоксу" : ""}${
           data.sendingMethod != "didox" ? data.sendingMethod : ""
@@ -29,7 +33,7 @@ export async function sendDocumentToFirst(filePath, data) {
       : `ПИНФЛ: ${data.pinfl}`;
 
     const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption: textToSenders + caption,
+      caption: namingOfClient + textToSenders + caption,
     });
 
     console.log("✅ Document successfully sent:", sentMessage.message_id);

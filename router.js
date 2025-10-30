@@ -72,7 +72,7 @@ router.post("/new-legal-entity-agreement", async (req, res) => {
         : "__________________________________________________",
       directorNameBottom: datas.directorName ? datas.directorName : "",
       address: `Адрес:${datas.address ? datas.address : emptyUnderlines}`,
-      phone: `Телефон: ${datas.phone ? datas.phone : emptyUnderlines}`,
+      phone: `Телефон: ${datas.phone}`,
       account: `Р/с: ${datas.account ? datas.account : emptyUnderlines}`,
       bank: `Банк: ${datas.bank ? datas.bank : emptyUnderlines}`,
       nfo: `МФО: ${datas.nfo ? datas.nfo : emptyUnderlines},`,
@@ -219,9 +219,9 @@ router.post("/new-individual-agreement", async (req, res) => {
       givenMonth: givenMonth < 10 ? "0" + givenMonth : givenMonth,
       givenYear,
       givenFrom: datas.givenFrom ? datas.givenFrom : "________________",
-      phone: datas.phone ? datas.phone : "_____________________",
       pinfl: datas.pinfl ? datas.pinfl : "_____________________",
       inn: datas.inn ? datas.inn : "_____________________",
+      address: datas.address ? datas.address : "_____________________",
       tarrifs: datas.tarrifs.length > 0 ? datas.tarrifs : tarrifDatas,
       abonentTarrifs:
         datas.abonentTarrifs.length > 0
