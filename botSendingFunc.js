@@ -22,12 +22,9 @@ export async function sendDocumentToFirst(filePath, data) {
       data.companyName ? data.companyName : data.personName
     }\n`;
 
-    let textToSenders = data.sendingMethod
-      ? `Прошу выслать по ${data.sendingMethod == "didox" ? "Дидоксу" : ""}${
-          data.sendingMethod != "didox" ? data.sendingMethod : ""
-        }\n`
-      : "";
-
+    let textToSenders = `Прошу выслать по ${
+      data.sendingMethod == "didox" ? "Дидоксу" : ""
+    }${data.sendingMethod != "didox" ? data.sendingMethod : ""}\n`;
     const caption = data.companyName
       ? `ИНН: ${data.inn}`
       : `ПИНФЛ: ${data.pinfl}`;
