@@ -61,7 +61,8 @@ export async function sendTextToGroup(data, count, companyInitialLetter) {
     }
 
     const caption =
-      `${companyInitialLetter}-25/${count} ${
+      `Менеджер: ${data.manager}
+      ${companyInitialLetter}-25/${count} ${
         data.companyName ? data.companyName : data.personName
       }\n` + tarrifCaptions;
 
