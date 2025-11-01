@@ -5,6 +5,7 @@ import Docxtemplater from "docxtemplater";
 import { abonentTarrifDatas, tarrifDatas } from "../emptyTables.js";
 import { sendDocumentToFirst, sendTextToGroup } from "../botSendingFunc.js";
 import { WordToPDF } from "../DocxToPDF.js";
+import IdService from "../IdService.js";
 
 export const individualAgreements = async (req, res) => {
   try {
