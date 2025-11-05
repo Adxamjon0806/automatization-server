@@ -25,12 +25,15 @@ export async function sendDocumentToFirst(filePath, data) {
     let textToSenders = `Прошу выслать по ${
       data.sendingMethod == "didox" ? "Дидоксу" : ""
     }${data.sendingMethod != "didox" ? data.sendingMethod : ""}\n`;
+
     const caption = data.companyName
-      ? `ИНН: ${data.inn}`
-      : `ПИНФЛ: ${data.pinfl}`;
+      ? `ИНН: ${data.inn}\n`
+      : `ПИНФЛ: ${data.pinfl}\n`;
+
+    const manager = `Имя менеджера: ${data.manager}`;
 
     const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption: namingOfClient + textToSenders + caption,
+      caption: namingOfClient + textToSenders + caption + manager,
     });
 
     console.log("✅ Document successfully sent:", sentMessage.message_id);

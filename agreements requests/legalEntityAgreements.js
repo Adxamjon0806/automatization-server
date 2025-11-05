@@ -65,7 +65,7 @@ export const legalEntityAgreements = async (req, res) => {
       phone: `Телефон: ${datas.phone}`,
       account: `Р/с: ${datas.account ? datas.account : emptyUnderlines}`,
       bank: `Банк: ${datas.bank ? datas.bank : emptyUnderlines}`,
-      nfo: `МФО: ${datas.nfo ? datas.nfo : emptyUnderlines},`,
+      mfo: `МФО: ${datas.mfo},`,
       okef: `ОКЭД: ${datas.okef ? datas.okef : emptyUnderlines}`,
       day: day < 10 ? "0" + day : day,
       month: month < 10 ? "0" + month : month,
