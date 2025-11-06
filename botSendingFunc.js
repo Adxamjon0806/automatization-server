@@ -30,10 +30,12 @@ export async function sendDocumentToFirst(filePath, data) {
       ? `ИНН: ${data.inn}\n`
       : `ПИНФЛ: ${data.pinfl}\n`;
 
-    const manager = `Имя менеджера: ${data.manager}`;
+    const manager = `Имя менеджера: ${data.manager}\n`;
+
+    const hasChanged = data.hasChanged ? "Цены на услуги были изменены" : "";
 
     const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption: namingOfClient + textToSenders + caption + manager,
+      caption: namingOfClient + textToSenders + caption + manager + hasChanged,
     });
 
     console.log("✅ Document successfully sent:", sentMessage.message_id);
