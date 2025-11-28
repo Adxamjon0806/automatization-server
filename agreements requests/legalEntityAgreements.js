@@ -24,9 +24,16 @@ export const legalEntityAgreements = async (req, res) => {
     const day = new Date(datas.date).getDate();
     const month = new Date(datas.date).getMonth() + 1;
     const filesName =
-      datas.companyName.split(" ").join("_") +
+      datas.companyName
+        .split('"')
+        .join("")
+        .split("'")
+        .join("")
+        .split(" ")
+        .join("_") +
       `_Договор_№_${companyInitialLetter}_25_${count}_от_2025_юр` +
       ".docx";
+    console.log(filesName);
 
     const template = fs.readFileSync("ДоговорДляСервера.docx", "binary");
     const zip = new PizZip(template);
@@ -110,6 +117,7 @@ export const legalEntityAgreements = async (req, res) => {
     const buffer = doc.getZip().generate({ type: "nodebuffer" });
 
     const filePath = `./${filesName}`;
+    console.log(filePath);
     fs.writeFileSync(filePath, buffer);
 
     const pdfPath = await WordToPDF(filePath, filesName);
