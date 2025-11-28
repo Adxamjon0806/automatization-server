@@ -2,6 +2,7 @@ import { Router } from "express";
 import IdService from "./IdService.js";
 import { legalEntityAgreements } from "./agreements requests/legalEntityAgreements.js";
 import { individualAgreements } from "./agreements requests/individualAgreements.js";
+import { getDataByInn } from "./getDataByInn.js";
 
 const router = new Router();
 
@@ -32,5 +33,7 @@ router.post("/change-count", async (req, res) => {
       .json({ error: "Ошибка при изменении счёта", message: e.message });
   }
 });
+
+router.post("/getDataByInn", getDataByInn);
 
 export default router;
