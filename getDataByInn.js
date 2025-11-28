@@ -20,7 +20,7 @@ async function getDataByInn(req, res) {
         info = data;
       });
 
-    res.status(200).json({ info });
+    res.status(200).json(info);
   } catch (e) {
     console.error("Error at getting the data by INN", e);
   }
