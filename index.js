@@ -5,7 +5,7 @@ import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import bot from "./botInstance.js";
+// import bot from "./botInstance.js";
 
 const __filename = fileURLToPath(import.meta.url); // абсолютный путь к файлу
 const __dirname = path.dirname(__filename);
@@ -34,8 +34,8 @@ const start = async () => {
 
 start();
 
-bot.on("message", (msg) => {
-  console.log(msg);
-});
+// bot.on("message", (msg) => {
+//   console.log(msg);
+// });
 
 export { __dirname };

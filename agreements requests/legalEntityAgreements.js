@@ -2,7 +2,7 @@ import fs from "fs";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import { abonentTarrifDatas, tarrifDatas } from "../emptyTables.js";
-import { sendDocumentToFirst, sendTextToGroup } from "../botSendingFunc.js";
+import { sendToChat } from "../botSendingFunc.js";
 import { WordToPDF } from "../DocxToPDF.js";
 import IdService from "../IdService.js";
 import { lock, waitForUnlock } from "../lock.js";
@@ -122,8 +122,7 @@ export const legalEntityAgreements = async (req, res) => {
 
     const pdfPath = await WordToPDF(filePath, filesName);
 
-    await sendDocumentToFirst(pdfPath, datas, count);
-    await sendTextToGroup(datas, count, companyInitialLetter);
+    await sendToChat(pdfPath, datas, count, companyInitialLetter);
 
     // Вариант для старых браузеров — безопасное экранирование кавычек
     const safeFileName = filesName.replace(/[\/\\?%*:|"<>']/g, "_").trim();

@@ -4,47 +4,10 @@ import bot from "./botInstance.js";
 
 dotenv.config();
 
-const firstChatId = process.env.FIRST_CHAT_ID;
-const secondChatId = process.env.SECOND_CHAT_ID;
+const secondChatId = process.env.CHAT_ID;
 
-export async function sendDocumentToFirst(filePath, data) {
+export async function sendToChat(filePath, data, count, companyInitialLetter) {
   console.log("📤 [sendDocumentToFirst] запуск функции, путь:", filePath);
-  try {
-    // Проверим наличие файла
-    if (!fs.existsSync(filePath)) {
-      console.error("❌ File does not exist:", filePath);
-      return;
-    }
-
-    const fileStream = fs.createReadStream(filePath);
-
-    const namingOfClient = `${
-      data.companyName ? data.companyName : data.personName
-    }\n`;
-
-    let textToSenders = `Прошу выслать по ${
-      data.sendingMethod == "didox" ? "Дидоксу" : ""
-    }${data.sendingMethod != "didox" ? data.sendingMethod : ""}\n`;
-
-    const caption = data.companyName
-      ? `ИНН: ${data.inn}\n`
-      : `ПИНФЛ: ${data.pinfl}\n`;
-
-    const manager = `Имя менеджера: ${data.manager}\n`;
-
-    const hasChanged = data.hasChanged ? "Цены на услуги были изменены" : "";
-
-    const sentMessage = await bot.sendDocument(firstChatId, fileStream, {
-      caption: namingOfClient + textToSenders + caption + manager + hasChanged,
-    });
-
-    console.log("✅ Document successfully sent:", sentMessage.message_id);
-  } catch (e) {
-    console.error("❌ Error at sending document to telegram group:", e.message);
-  }
-}
-
-export async function sendTextToGroup(data, count, companyInitialLetter) {
   try {
     let tarrifCaptions = "";
 
@@ -62,14 +25,47 @@ export async function sendTextToGroup(data, count, companyInitialLetter) {
       }
     }
 
+    // Проверим наличие файла
+    if (!fs.existsSync(filePath)) {
+      console.error("❌ File does not exist:", filePath);
+      return;
+    }
+
+    const fileStream = fs.createReadStream(filePath);
+
+    const namingOfClient = `${
+      data.companyName ? data.companyName : data.personName
+    }\n`;
+
+    let textToSenders = `Прошу выслать по ${
+      data.sendingMethod == "didox" ? "Дидоксу" : ""
+    }${data.sendingMethod != "didox" ? data.sendingMethod : ""}\n`;
+
+    const companyId = data.companyName
+      ? `ИНН: ${data.inn}\n`
+      : `ПИНФЛ: ${data.pinfl}\n`;
+
+    const manager = `Имя менеджера: ${data.manager}\n`;
+
+    const hasChanged = data.hasChanged ? "Цены на услуги были изменены" : "";
+
     const caption =
       `Менеджер: ${data.manager}\n${companyInitialLetter}-25/${count} ${
         data.companyName ? data.companyName : data.personName
       }\n` + tarrifCaptions;
 
-    await bot.sendMessage(secondChatId, caption);
-    console.log("✅ Text message sent to group.");
+    const sentMessage = await bot.sendDocument(secondChatId, fileStream, {
+      caption:
+        namingOfClient +
+        textToSenders +
+        companyId +
+        manager +
+        hasChanged +
+        caption,
+    });
+
+    console.log("✅ Document successfully sent:", sentMessage.message_id);
   } catch (e) {
-    console.error("❌ Error at sending text to telegram group:", e.message);
+    console.error("❌ Error at sending document to telegram group:", e.message);
   }
 }
