@@ -13,13 +13,14 @@ export const legalEntityAgreements = async (req, res) => {
   try {
     await waitForUnlock(); // ждём, пока другой запрос закончит запись
     lock.isLocked = true;
+    const datas = req.body;
 
     const countBody = await IdService.getCount();
-    const count = countBody.count;
+    const count =
+      datas.agreementCount !== "" ? datas.agreementCount : countBody.count;
     console.log(count);
     let tarrifsTotal = 0;
     let abonentTarrifsTotal = 0;
-    const datas = req.body;
     const companyInitialLetter = datas.dealingCompany === "UZGPS" ? "U" : "GPS";
     const day = new Date(datas.date).getDate();
     const month = new Date(datas.date).getMonth() + 1;
@@ -138,7 +139,9 @@ export const legalEntityAgreements = async (req, res) => {
       filesName,
     });
 
-    await IdService.updateCount(count + 1, countBody);
+    if (datas.agreementCount === "") {
+      await IdService.updateCount(count + 1, countBody);
+    }
 
     fs.unlinkSync(filePath);
     fs.unlinkSync(pdfPath);
